@@ -17,7 +17,7 @@ class NotificationService {
     const iosSettings = DarwinInitializationSettings();
     const settings = InitializationSettings(android: androidSettings, iOS: iosSettings);
     try {
-      await _plugin.initialize(settings);
+      await _plugin.initialize(settings: settings);
       _isInitialized = true;
     } catch (_) {
       // تجاهل الخطأ إن لم تتوفر منصة الإشعارات
@@ -51,7 +51,7 @@ class NotificationService {
     );
     const details = NotificationDetails(android: androidDetails, iOS: DarwinNotificationDetails());
     try {
-      await _plugin.show(id, title, body, details);
+      await _plugin.show(id: id, title: title, body: body, notificationDetails: details);
     } catch (_) {
       // تجاهل الخطأ
     }
