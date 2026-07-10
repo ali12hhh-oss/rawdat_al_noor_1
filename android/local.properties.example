@@ -1,0 +1,14 @@
+## هذا ملف مثال فقط — انسخه باسم "local.properties" (بدون .example) وعدّل المسارات
+## حسب جهازك. Flutter يولّد هذا الملف تلقائياً بنفسه عند تشغيل flutter run/build،
+## لذا لا تحتاج غالباً لإنشائه يدوياً إلا إذا فتحت مجلد android/ مباشرة في Android Studio
+## بشكل منفصل عن أداة Flutter.
+##
+## هذا الملف خاص بكل جهاز على حدة ولا يجب رفعه إلى Git إطلاقاً (وهو مستثنى في .gitignore).
+
+## مثال لنظام ماك/لينكس:
+# sdk.dir=/Users/YOUR_NAME/Library/Android/sdk
+# flutter.sdk=/Users/YOUR_NAME/development/flutter
+
+## مثال لنظام ويندوز:
+# sdk.dir=C:\\Users\\YOUR_NAME\\AppData\\Local\\Android\\Sdk
+# flutter.sdk=C:\\src\\flutter
