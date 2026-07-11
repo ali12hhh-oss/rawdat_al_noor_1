@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../core/app_colors.dart';
 import '../core/app_theme.dart';
@@ -20,8 +20,9 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // تشغيل التأثير الترحيبي بعد 1 ثانية
+    // تشغيل التأثير الترحيبي بعد نصف ثانية
     Future.delayed(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
       setState(() {
         _showWelcomeEffect = true;
       });
@@ -33,6 +34,16 @@ class _HomeScreenState extends State<HomeScreen> {
         }
       });
     });
+
+    // تشغيل الموسيقى الخلفية مرة واحدة فقط بعد استقرار الشاشة تماماً
+    // (تأخير إضافي متعمّد لتفادي أي تعارض مع تهيئة الصوت وقت الإقلاع البارد للتطبيق)
+    Future.delayed(const Duration(milliseconds: 800), () {
+      if (!mounted) return;
+      final audio = Provider.of<AudioProvider>(context, listen: false);
+      if (audio.isMusicEnabled) {
+        audio.playBackgroundMusic();
+      }
+    });
   }
 
   @override
@@ -40,13 +51,6 @@ class _HomeScreenState extends State<HomeScreen> {
     final progress = Provider.of<ProgressProvider>(context);
     final language = Provider.of<LanguageProvider>(context);
     final audio = Provider.of<AudioProvider>(context);
-
-    // تشغيل الموسيقى الخلفية عند الدخول للشاشة الرئيسية
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (audio.isMusicEnabled) {
-        audio.playBackgroundMusic();
-      }
-    });
 
     return Scaffold(
       backgroundColor: AppColors.background,
