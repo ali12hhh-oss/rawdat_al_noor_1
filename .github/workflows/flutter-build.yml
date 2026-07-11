@@ -1,62 +1,90 @@
 name: Flutter Build
+
 on:
   push:
     branches: [ "main", "master" ]
   pull_request:
     branches: [ "main", "master" ]
   workflow_dispatch: {}
+
 jobs:
   build-android:
     name: Build Android APK
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
+
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           cache: true
+
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+
       - name: Create local.properties
         run: |
           echo "sdk.dir=$ANDROID_HOME" > android/local.properties
           echo "flutter.sdk=${{ env.FLUTTER_ROOT }}" >> android/local.properties
           echo "✅ local.properties created"
           cat android/local.properties
+
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.13'
+
       - name: Regenerate Gradle Wrapper (fixes missing/corrupt gradle-wrapper.jar)
         working-directory: android
         run: gradle wrapper --gradle-version 8.13 --distribution-type all
+
       - name: Install dependencies
         run: flutter pub get
+
       - name: Analyze project (non-blocking)
         run: flutter analyze || true
+
       - name: Run tests (if any)
         run: flutter test || true
+
       # نستخدم "flutter build" (بدل استدعاء gradle مباشرة) لأنه يضمن مسار إخراج
       # الملف الصحيح (build/app/outputs/flutter-apk/) ويمرر كل الإعدادات اللازمة
       # لبناء Flutter تلقائياً (target platform, kernel snapshot...إلخ)، الآن بعد
       # أن أصلحنا مشكلة gradle-wrapper.jar التي كانت السبب الأصلي لتجنّب هذا الأسلوب.
+      # نسخة debug لأغراض التشخيص فقط: عند حدوث أي خطأ أثناء البناء تظهر
+      # شاشة حمراء بنص الخطأ الفعلي بدل إغلاق التطبيق بصمت كما في release
+      - name: Build Debug APK (for crash diagnosis)
+        run: flutter build apk --debug
+
+      - name: Upload Debug APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug-apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
+
       - name: Build APK (release)
         run: flutter build apk --release
+
       - name: Build App Bundle (release)
         run: flutter build appbundle --release
+
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
+
       - name: Upload App Bundle artifact
         uses: actions/upload-artifact@v4
         with:
